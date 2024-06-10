@@ -1,0 +1,95 @@
+#include <iostream>
+#include <string>
+#include <bitset>
+
+using namespace std;
+
+string xorOperation(string a, string b) {
+    string result = "";
+    int n = b.length();
+
+    for (int i = 1; i < n; i++) {
+        result += (a[i] == b[i]) ? '0' : '1';
+    }
+
+    return result;
+}
+
+string mod2div(string dividend, string divisor) {
+    int pick = divisor.length();
+    string temp = dividend.substr(0, pick);
+
+    int n = dividend.length();
+
+    while (pick < n) {
+        if (temp[0] == '1') {
+            temp = xorOperation(divisor, temp) + dividend[pick];
+        } else {
+            temp = xorOperation(string(pick, '0'), temp) + dividend[pick];
+        }
+
+        pick += 1;
+    }
+
+    if (temp[0] == '1') {
+        temp = xorOperation(divisor, temp);
+    } else {
+        temp = xorOperation(string(pick, '0'), temp);
+    }
+
+    return temp;
+}
+
+void encodeData(string data, string key) {
+    int l_key = key.length();
+    string appended_data = (data + string(l_key - 1, '0'));
+    string remainder = mod2div(appended_data, key);
+    string codeword = data + remainder;
+
+    cout << "Remainder: " << remainder << "\n";
+    cout << "Encoded Data (Data + Remainder): " << codeword << "\n";
+}
+
+string stringToBinary(const string &input) {
+    string result = "";
+    for (char c : input) {
+        result += bitset<8>(c).to_string();
+    }
+    return result;
+}
+
+int main() {
+    string data;
+    int choice;
+    string key;
+
+    cout << "Enter data: ";
+    cin >> data;
+    string binaryData = stringToBinary(data);
+
+    cout << "Choose CRC Polynomial:\n";
+    cout << "1. CRC-12 (0x80F)\n";
+    cout << "2. CRC-16 (0x8005)\n";
+    cout << "3. CRC-CCITT (0x1021)\n";
+    cout << "Enter your choice: ";
+    cin >> choice;
+
+    switch(choice) {
+        case 1:
+            key = "100000000111";
+            break;
+        case 2:
+            key = "1000000000000101";
+            break;
+        case 3:
+            key = "10000001000010001";
+            break;
+        default:
+            cout << "Invalid choice.\n";
+            return 1;
+    }
+
+    encodeData(binaryData, key);
+
+    return 0;
+}
